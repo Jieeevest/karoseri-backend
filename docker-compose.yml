@@ -1,6 +1,6 @@
 version: "2"
 services:
-  backoffice-api:
+  karoseri-api:
     image: localhost/karoseri-backend:1.0.0
     build: .
     container_name: karoseri-backend
