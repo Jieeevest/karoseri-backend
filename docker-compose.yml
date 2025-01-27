@@ -10,7 +10,7 @@ services:
       - ./src/:/app/src/
       - ./prisma/schema.prisma:/app/prisma/schema.prisma
     ports:
-      - "5002:5002"
+      - "3001:3001"
 networks:
   db:
     external: true
