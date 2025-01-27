@@ -6,7 +6,7 @@ services:
     container_name: karoseri-backend
     restart: unless-stopped
     volumes:
-      - .env:/app/env:ro
+      - .env:/app/.env
       - ./src/:/app/src/
       - ./prisma/schema.prisma:/app/prisma/schema.prisma
     ports:
