@@ -11,6 +11,3 @@ services:
       - ./prisma/schema.prisma:/app/prisma/schema.prisma
     ports:
       - "3001:3001"
-networks:
-  db:
-    external: true
