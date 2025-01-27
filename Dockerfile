@@ -26,7 +26,7 @@ RUN npx prisma generate
 #RUN npm run build
 
 # Specify the port used by Next.js
-EXPOSE 7001
+EXPOSE 3001
 
 # Run the application
 #CMD ["npm", "run", "start"]
