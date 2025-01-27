@@ -1,0 +1,13 @@
+version: "2"
+services:
+  backoffice-api:
+    image: localhost/karoseri-backend:1.0.0
+    build: .
+    container_name: karoseri-backend
+    restart: unless-stopped
+    volumes:
+      - .env:/app/env
+      - ./src/:/app/src/
+      - ./prisma/schema.prisma:/app/prisma/schema.prisma
+    ports:
+      - "5002:5002"
