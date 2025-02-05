@@ -12,5 +12,5 @@ services:
     ports:
       - "3001:3001"
 networks:
-  pg14:
+  custom-db:
     external: true
