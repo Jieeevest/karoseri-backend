@@ -12,5 +12,5 @@ services:
     ports:
       - "3001:3001"
 networks:
-  postgres14:
+  pg14:
     external: true
