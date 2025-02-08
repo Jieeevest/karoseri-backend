@@ -9,31 +9,11 @@ import {
 import { checkSession } from "../middlewares/checkSession";
 
 async function savingLocationRoutes(fastify: FastifyInstance) {
-  fastify.post(
-    "/saving-locations",
-    { preHandler: checkSession },
-    createSavingLocation
-  );
-  fastify.get(
-    "/saving-locations",
-    { preHandler: checkSession },
-    getAllSavingLocations
-  );
-  fastify.get(
-    "/saving-locations/:id",
-    { preHandler: checkSession },
-    getSavingLocationById
-  );
-  fastify.put(
-    "/saving-locations/:id",
-    { preHandler: checkSession },
-    updateSavingLocation
-  );
-  fastify.delete(
-    "/saving-locations/:id",
-    { preHandler: checkSession },
-    deleteSavingLocation
-  );
+  fastify.post("/", { preHandler: checkSession }, createSavingLocation);
+  fastify.get("/", { preHandler: checkSession }, getAllSavingLocations);
+  fastify.get("/:id", { preHandler: checkSession }, getSavingLocationById);
+  fastify.put("/:id", { preHandler: checkSession }, updateSavingLocation);
+  fastify.delete("/:id", { preHandler: checkSession }, deleteSavingLocation);
 }
 
 export default savingLocationRoutes;

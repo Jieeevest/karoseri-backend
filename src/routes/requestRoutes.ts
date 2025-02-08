@@ -6,8 +6,8 @@ import {
 import { checkSession } from "../middlewares/checkSession";
 
 async function requestRoutes(fastify: FastifyInstance) {
-  fastify.post("/requests", { preHandler: checkSession }, createRequest);
-  fastify.get("/requests", { preHandler: checkSession }, getAllRequests);
+  fastify.post("/", { preHandler: checkSession }, createRequest);
+  fastify.get("/", { preHandler: checkSession }, getAllRequests);
 }
 
 export default requestRoutes;

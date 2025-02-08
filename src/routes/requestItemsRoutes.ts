@@ -9,31 +9,11 @@ import {
 import { checkSession } from "../middlewares/checkSession";
 
 async function requestItemRoutes(fastify: FastifyInstance) {
-  fastify.post(
-    "/request-items",
-    { preHandler: checkSession },
-    createRequestItem
-  );
-  fastify.get(
-    "/request-items",
-    { preHandler: checkSession },
-    getAllRequestItems
-  );
-  fastify.get(
-    "/request-items/:id",
-    { preHandler: checkSession },
-    getRequestItemById
-  );
-  fastify.put(
-    "/request-items/:id",
-    { preHandler: checkSession },
-    updateRequestItem
-  );
-  fastify.delete(
-    "/request-items/:id",
-    { preHandler: checkSession },
-    deleteRequestItem
-  );
+  fastify.post("/", { preHandler: checkSession }, createRequestItem);
+  fastify.get("/", { preHandler: checkSession }, getAllRequestItems);
+  fastify.get("/:id", { preHandler: checkSession }, getRequestItemById);
+  fastify.put("/:id", { preHandler: checkSession }, updateRequestItem);
+  fastify.delete("/:id", { preHandler: checkSession }, deleteRequestItem);
 }
 
 export default requestItemRoutes;

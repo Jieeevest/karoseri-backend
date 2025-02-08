@@ -32,7 +32,7 @@
     "globals": "^15.14.0",
     "nodemon": "^3.1.9",
     "prettier": "^3.4.2",
-    "prisma": "^6.1.0",
+    "prisma": "^6.3.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "@fastify/cors": "^10.0.2",
-    "@prisma/client": "^6.1.0",
+    "@prisma/client": "^6.3.0",
     "fastify": "^5.2.0",
     "fastify-jwt": "^4.2.0",
     "fuse.js": "^7.0.0",

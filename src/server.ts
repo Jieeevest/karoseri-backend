@@ -20,35 +20,39 @@ import {
   vehicleRoutes,
 } from "./routes";
 
-const server = Fastify();
-
-// Register CORS middleware
-server.register(cors, {
-  origin: "*", // Allow all origins (not recommended in production)
-  methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed HTTP methods
-  allowedHeaders: ["Content-Type", "Authorization"], // Specify allowed headers
+const server = Fastify({
+  logger: true,
 });
+
+server.register(cors, {
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+});
+
 server.get("/", function () {
   return "Hello world!";
 });
 
-server.register(authenticationRoutes, { prefix: "api/auth" });
-server.register(categoryRoutes, { prefix: "api/category" });
-server.register(employeeRoutes, { prefix: "api/employee" });
-server.register(groupRoutes, { prefix: "api/group" });
-server.register(inboundRoutes, { prefix: "api/inbound" });
-server.register(inboundItemsRoutes, { prefix: "api/inbound-item" });
-server.register(inventoryRoutes, { prefix: "api/inventory" });
-server.register(outboundRoutes, { prefix: "api/outbound" });
-server.register(outboundItemsRoutes, { prefix: "api/outbound-item" });
-server.register(positionRoutes, { prefix: "api/position" });
-server.register(requestItemRoutes, { prefix: "api/request-item" });
-server.register(requestRoutes, { prefix: "api/request" });
-server.register(roleRoutes, { prefix: "api/role" });
-server.register(savingLocationRoutes, { prefix: "api/saving-location" });
-server.register(typeRoutes, { prefix: "api/type" });
-server.register(supplierRoutes, { prefix: "api/supplier" });
-server.register(vehicleRoutes, { prefix: "api/vehicle" });
+const prefix = "/api/v1";
+
+server.register(authenticationRoutes, { prefix: prefix + "/auth" });
+server.register(categoryRoutes, { prefix: prefix + "/categories" });
+server.register(employeeRoutes, { prefix: prefix + "/employees" });
+server.register(groupRoutes, { prefix: prefix + "/groups" });
+server.register(inboundRoutes, { prefix: prefix + "/inbounds" });
+server.register(inboundItemsRoutes, { prefix: prefix + "/inbound-items" });
+server.register(inventoryRoutes, { prefix: prefix + "/inventory" });
+server.register(outboundRoutes, { prefix: prefix + "/outbounds" });
+server.register(outboundItemsRoutes, { prefix: prefix + "/outbound-items" });
+server.register(positionRoutes, { prefix: prefix + "/positions" });
+server.register(requestItemRoutes, { prefix: prefix + "/request-items" });
+server.register(requestRoutes, { prefix: prefix + "/requests" });
+server.register(roleRoutes, { prefix: prefix + "/roles" });
+server.register(savingLocationRoutes, { prefix: prefix + "/locations" });
+server.register(typeRoutes, { prefix: prefix + "/types" });
+server.register(supplierRoutes, { prefix: prefix + "/suppliers" });
+server.register(vehicleRoutes, { prefix: prefix + "/vehicles" });
 
 const start = async () => {
   try {

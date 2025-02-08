@@ -87,10 +87,15 @@ model Inventory {
 model Supplier {
   id              Int                 @id @default(autoincrement())
   name            String?
+  category        String?
+  bank            String?
+  bankNumber      String?
+  bankOwner       String?
   phoneNumber     String?
   phoneNumberAlt  String?
   email           String?
   homeAddress     String?
+  totalDebt       Int?                @default(0)
   request         Request[]           @relation("SupplierToRequest")
   inbound         Inbound[]           @relation("SupplierToInbound")
   outbound        Outbound[]          @relation("SupplierToOutbound")

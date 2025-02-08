@@ -9,11 +9,11 @@ import {
 import { checkSession } from "../middlewares/checkSession";
 
 async function vehicleRoutes(fastify: FastifyInstance) {
-  fastify.post("/vehicles", { preHandler: checkSession }, createVehicle);
-  fastify.get("/vehicles", { preHandler: checkSession }, getAllVehicles);
-  fastify.get("/vehicles/:id", { preHandler: checkSession }, getVehicleById);
-  fastify.put("/vehicles/:id", { preHandler: checkSession }, updateVehicle);
-  fastify.delete("/vehicles/:id", { preHandler: checkSession }, deleteVehicle);
+  fastify.post("/", { preHandler: checkSession }, createVehicle);
+  fastify.get("/", { preHandler: checkSession }, getAllVehicles);
+  fastify.get("/:id", { preHandler: checkSession }, getVehicleById);
+  fastify.put("/:id", { preHandler: checkSession }, updateVehicle);
+  fastify.delete("/:id", { preHandler: checkSession }, deleteVehicle);
 }
 
 export default vehicleRoutes;

@@ -109,7 +109,7 @@ export const login = async (request: FastifyRequest, reply: FastifyReply) => {
       { id: employee.id, email: employee.email },
       JWT_SECRET,
       {
-        expiresIn: "1d",
+        expiresIn: "7d",
       }
     );
 

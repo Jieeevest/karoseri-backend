@@ -9,15 +9,11 @@ import {
 import { checkSession } from "../middlewares/checkSession";
 
 async function supplierRoutes(fastify: FastifyInstance) {
-  fastify.post("/suppliers", { preHandler: checkSession }, createSupplier);
-  fastify.get("/suppliers", { preHandler: checkSession }, getAllSuppliers);
-  fastify.get("/suppliers/:id", { preHandler: checkSession }, getSupplierById);
-  fastify.put("/suppliers/:id", { preHandler: checkSession }, updateSupplier);
-  fastify.delete(
-    "/suppliers/:id",
-    { preHandler: checkSession },
-    deleteSupplier
-  );
+  fastify.post("/", { preHandler: checkSession }, createSupplier);
+  fastify.get("/", { preHandler: checkSession }, getAllSuppliers);
+  fastify.get("/:id", { preHandler: checkSession }, getSupplierById);
+  fastify.put("/:id", { preHandler: checkSession }, updateSupplier);
+  fastify.delete("/:id", { preHandler: checkSession }, deleteSupplier);
 }
 
 export default supplierRoutes;
