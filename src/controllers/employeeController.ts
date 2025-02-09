@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { FastifyReply, FastifyRequest } from "fastify";
 import { PrismaClient } from "@prisma/client";
 import { sendResponse } from "../helpers";
@@ -66,21 +67,76 @@ export const getAllEmployees = async (
   reply: FastifyReply
 ) => {
   try {
-    const employees = await prisma.employee.findMany({
+    /** Get query parameters */
+    const { page, limit, sortBy, sortOrder, status } = request.query as {
+      page?: string;
+      limit?: string;
+      sortBy?: string;
+      sortOrder?: string;
+      status?: string;
+      keyword?: string;
+    };
+
+    /** Set pagination parameters */
+    const pageNumber = parseInt(page || "1", 10);
+    const pageSize = parseInt(limit || "10", 10);
+    const orderField = sortBy || "createdAt";
+    const orderDirection = sortOrder?.toLowerCase() === "desc" ? "desc" : "asc";
+
+    /** Set options */
+    const options = {
+      skip: (pageNumber - 1) * pageSize,
+      take: pageSize,
+      orderBy: { [orderField]: orderDirection },
       include: {
         role: true,
         group: true,
         position: true,
       },
+    };
+
+    /** Filter parameters */
+    const whereConditions: any = {
+      where: {
+        status: {
+          contains: "active",
+          mode: "insensitive",
+          not: "non-active",
+        },
+      },
+    };
+
+    if (status) {
+      whereConditions.where.status = {
+        equals: status,
+        mode: "insensitive",
+      };
+    }
+    const employees = await prisma.employee.findMany({
+      ...options,
+      ...whereConditions,
     });
 
-    sendResponse(reply, 200, {
+    /** Count teams */
+    const employeeCount = await prisma.employee.count({
+      ...whereConditions,
+    });
+
+    return sendResponse(reply, 200, {
       success: true,
       message: "Employees retrieved successfully",
-      data: employees,
+      data: {
+        employees,
+        totalData: employeeCount,
+        pageNumber,
+        pageSize,
+        orderBy: orderField,
+        orderDirection,
+      },
     });
   } catch (error) {
-    sendResponse(reply, 500, {
+    console.log(error);
+    return sendResponse(reply, 500, {
       success: false,
       message: "Error retrieving employees",
       error,
