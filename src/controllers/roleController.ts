@@ -7,10 +7,9 @@ export const createRole = async (
   request: FastifyRequest,
   reply: FastifyReply
 ) => {
-  const { name, description, status } = request.body as {
+  const { name, description } = request.body as {
     name: string;
     description: string;
-    status: string;
   };
 
   try {
@@ -18,7 +17,7 @@ export const createRole = async (
       data: {
         name,
         description,
-        status,
+        status: "active",
       },
     });
 

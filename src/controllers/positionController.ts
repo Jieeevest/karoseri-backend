@@ -8,10 +8,9 @@ export const createPosition = async (
   request: FastifyRequest,
   reply: FastifyReply
 ) => {
-  const { name, description, status } = request.body as {
+  const { name, description } = request.body as {
     name: string;
     description: string;
-    status: string;
   };
 
   try {
@@ -19,7 +18,7 @@ export const createPosition = async (
       data: {
         name,
         description,
-        status,
+        status: "active",
       },
     });
 
