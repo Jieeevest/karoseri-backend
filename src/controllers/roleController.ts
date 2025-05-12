@@ -22,13 +22,13 @@ export const createRole = async (
       },
     });
 
-    sendResponse(reply, 201, {
+    return sendResponse(reply, 201, {
       success: true,
       message: "Role created successfully",
       data: role,
     });
   } catch (error) {
-    sendResponse(reply, 500, {
+    return sendResponse(reply, 500, {
       success: false,
       message: "Error creating role",
       error,
@@ -42,15 +42,74 @@ export const getAllRoles = async (
   reply: FastifyReply
 ) => {
   try {
-    const roles = await prisma.role.findMany();
+    /** Get query parameters */
+    const { page, limit, sortBy, sortOrder, status } = request.query as {
+      page?: string;
+      limit?: string;
+      sortBy?: string;
+      sortOrder?: string;
+      status?: string;
+      keyword?: string;
+    };
 
-    sendResponse(reply, 200, {
+    /** Set pagination parameters */
+    const pageNumber = parseInt(page || "1", 10);
+    const pageSize = parseInt(limit || "10", 10);
+    const orderField = sortBy || "createdAt";
+    const orderDirection = sortOrder?.toLowerCase() === "desc" ? "desc" : "asc";
+
+    /** Set options */
+    const options = {
+      skip: (pageNumber - 1) * pageSize,
+      take: pageSize,
+      orderBy: { [orderField]: orderDirection },
+    };
+
+    /** Filter parameters */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const whereConditions: any = {
+      where: {
+        status: {
+          contains: "active",
+          mode: "insensitive",
+          not: "non-active",
+        },
+        id: {
+          gt: 1,
+        },
+      },
+    };
+
+    if (status) {
+      whereConditions.where.status = {
+        equals: status,
+        mode: "insensitive",
+      };
+    }
+    const roles = await prisma.role.findMany({
+      ...options,
+      ...whereConditions,
+    });
+
+    /** Count roles */
+    const roleCount = await prisma.role.count({
+      ...whereConditions,
+    });
+
+    return sendResponse(reply, 200, {
       success: true,
       message: "Roles retrieved successfully",
-      data: roles,
+      data: {
+        roles,
+        totalData: roleCount,
+        pageNumber,
+        pageSize,
+        orderBy: orderField,
+        orderDirection,
+      },
     });
   } catch (error) {
-    sendResponse(reply, 500, {
+    return sendResponse(reply, 500, {
       success: false,
       message: "Error retrieving roles",
       error,
@@ -77,13 +136,13 @@ export const getRoleById = async (
       });
     }
 
-    sendResponse(reply, 200, {
+    return sendResponse(reply, 200, {
       success: true,
       message: "Role retrieved successfully",
       data: role,
     });
   } catch (error) {
-    sendResponse(reply, 500, {
+    return sendResponse(reply, 500, {
       success: false,
       message: "Error retrieving role",
       error,
@@ -113,13 +172,13 @@ export const updateRole = async (
       },
     });
 
-    sendResponse(reply, 200, {
+    return sendResponse(reply, 200, {
       success: true,
       message: "Role updated successfully",
       data: updatedRole,
     });
   } catch (error) {
-    sendResponse(reply, 500, {
+    return sendResponse(reply, 500, {
       success: false,
       message: "Error updating role",
       error,
@@ -139,12 +198,12 @@ export const deleteRole = async (
       where: { id: Number(id) },
     });
 
-    sendResponse(reply, 200, {
+    return sendResponse(reply, 200, {
       success: true,
       message: "Role deleted successfully",
     });
   } catch (error) {
-    sendResponse(reply, 500, {
+    return sendResponse(reply, 500, {
       success: false,
       message: "Error deleting role",
       error,

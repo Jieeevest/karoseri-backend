@@ -29,13 +29,13 @@ export const createSupplier = async (
       },
     });
 
-    sendResponse(reply, 201, {
+    return sendResponse(reply, 201, {
       success: true,
       message: "Supplier created successfully",
       data: supplier,
     });
   } catch (error) {
-    sendResponse(reply, 500, {
+    return sendResponse(reply, 500, {
       success: false,
       message: "Error creating supplier",
       error,
@@ -49,21 +49,79 @@ export const getAllSuppliers = async (
   reply: FastifyReply
 ) => {
   try {
+    /** Get query parameters */
+    const { page, limit, sortBy, sortOrder } = request.query as {
+      page?: string;
+      limit?: string;
+      sortBy?: string;
+      sortOrder?: string;
+      status?: string;
+      keyword?: string;
+    };
+
+    /** Set pagination parameters */
+    const pageNumber = parseInt(page || "1", 10);
+    const pageSize = parseInt(limit || "10", 10);
+    const orderField = sortBy || "createdAt";
+    const orderDirection = sortOrder?.toLowerCase() === "desc" ? "desc" : "asc";
+
+    /** Set options */
+    const options = {
+      skip: (pageNumber - 1) * pageSize,
+      take: pageSize,
+      orderBy: { [orderField]: orderDirection },
+    };
+
+    /** Filter parameters */
+    // const whereConditions: any = {
+    //   where: {
+    //     status: {
+    //       contains: "active",
+    //       mode: "insensitive",
+    //       not: "non-active",
+    //     },
+    //   },
+    // };
+
+    // if (status) {
+    //   whereConditions.where.status = {
+    //     equals: status,
+    //     mode: "insensitive",
+    //   };
+    // }
+
+    /* Commented if someday it will be changed 
+      const suppliers = await prisma.supplier.findMany({
+        include: {
+          request: true,
+          inbound: true,
+          outbound: true,
+        },
+      });
+    */
+
     const suppliers = await prisma.supplier.findMany({
-      include: {
-        request: true,
-        inbound: true,
-        outbound: true,
-      },
+      ...options,
     });
 
-    sendResponse(reply, 200, {
+    /** Count groups */
+    const supplierCount = await prisma.supplier.count();
+
+    return sendResponse(reply, 200, {
       success: true,
       message: "Suppliers retrieved successfully",
-      data: suppliers,
+      data: {
+        suppliers,
+        totalData: supplierCount,
+        pageNumber,
+        pageSize,
+        orderBy: orderField,
+        orderDirection,
+      },
     });
   } catch (error) {
-    sendResponse(reply, 500, {
+    console.log(error);
+    return sendResponse(reply, 500, {
       success: false,
       message: "Error retrieving suppliers",
       error,
@@ -95,13 +153,13 @@ export const getSupplierById = async (
       });
     }
 
-    sendResponse(reply, 200, {
+    return sendResponse(reply, 200, {
       success: true,
       message: "Supplier retrieved successfully",
       data: supplier,
     });
   } catch (error) {
-    sendResponse(reply, 500, {
+    return sendResponse(reply, 500, {
       success: false,
       message: "Error retrieving supplier",
       error,
@@ -136,13 +194,13 @@ export const updateSupplier = async (
       },
     });
 
-    sendResponse(reply, 200, {
+    return sendResponse(reply, 200, {
       success: true,
       message: "Supplier updated successfully",
       data: updatedSupplier,
     });
   } catch (error) {
-    sendResponse(reply, 500, {
+    return sendResponse(reply, 500, {
       success: false,
       message: "Error updating supplier",
       error,
@@ -162,12 +220,12 @@ export const deleteSupplier = async (
       where: { id: Number(id) },
     });
 
-    sendResponse(reply, 200, {
+    return sendResponse(reply, 200, {
       success: true,
       message: "Supplier deleted successfully",
     });
   } catch (error) {
-    sendResponse(reply, 500, {
+    return sendResponse(reply, 500, {
       success: false,
       message: "Error deleting supplier",
       error,

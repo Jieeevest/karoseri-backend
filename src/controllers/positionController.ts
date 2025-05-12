@@ -23,13 +23,13 @@ export const createPosition = async (
       },
     });
 
-    sendResponse(reply, 201, {
+    return sendResponse(reply, 201, {
       success: true,
       message: "Position created successfully",
       data: position,
     });
   } catch (error) {
-    sendResponse(reply, 500, {
+    return sendResponse(reply, 500, {
       success: false,
       message: "Error creating position",
       error,
@@ -43,15 +43,75 @@ export const getAllPositions = async (
   reply: FastifyReply
 ) => {
   try {
-    const positions = await prisma.position.findMany();
+    /** Get query parameters */
+    const { page, limit, sortBy, sortOrder, status } = request.query as {
+      page?: string;
+      limit?: string;
+      sortBy?: string;
+      sortOrder?: string;
+      status?: string;
+      keyword?: string;
+    };
 
-    sendResponse(reply, 200, {
+    /** Set pagination parameters */
+    const pageNumber = parseInt(page || "1", 10);
+    const pageSize = parseInt(limit || "10", 10);
+    const orderField = sortBy || "createdAt";
+    const orderDirection = sortOrder?.toLowerCase() === "desc" ? "desc" : "asc";
+
+    /** Set options */
+    const options = {
+      skip: (pageNumber - 1) * pageSize,
+      take: pageSize,
+      orderBy: { [orderField]: orderDirection },
+    };
+
+    /** Filter parameters */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const whereConditions: any = {
+      where: {
+        status: {
+          contains: "active",
+          mode: "insensitive",
+          not: "non-active",
+        },
+        id: {
+          gt: 1,
+        },
+      },
+    };
+
+    if (status) {
+      whereConditions.where.status = {
+        equals: status,
+        mode: "insensitive",
+      };
+    }
+    const positions = await prisma.position.findMany({
+      ...options,
+      ...whereConditions,
+    });
+
+    /** Count positions */
+    const positionCount = await prisma.position.count({
+      ...whereConditions,
+    });
+
+    return sendResponse(reply, 200, {
       success: true,
       message: "Positions retrieved successfully",
-      data: positions,
+      data: {
+        positions,
+        totalData: positionCount,
+        pageNumber,
+        pageSize,
+        orderBy: orderField,
+        orderDirection,
+      },
     });
   } catch (error) {
-    sendResponse(reply, 500, {
+    console.log(error);
+    return sendResponse(reply, 500, {
       success: false,
       message: "Error retrieving positions",
       error,
@@ -78,13 +138,13 @@ export const getPositionById = async (
       });
     }
 
-    sendResponse(reply, 200, {
+    return sendResponse(reply, 200, {
       success: true,
       message: "Position retrieved successfully",
       data: position,
     });
   } catch (error) {
-    sendResponse(reply, 500, {
+    return sendResponse(reply, 500, {
       success: false,
       message: "Error retrieving position",
       error,
@@ -114,13 +174,13 @@ export const updatePosition = async (
       },
     });
 
-    sendResponse(reply, 200, {
+    return sendResponse(reply, 200, {
       success: true,
       message: "Position updated successfully",
       data: updatedPosition,
     });
   } catch (error) {
-    sendResponse(reply, 500, {
+    return sendResponse(reply, 500, {
       success: false,
       message: "Error updating position",
       error,
@@ -140,12 +200,12 @@ export const deletePosition = async (
       where: { id: Number(id) },
     });
 
-    sendResponse(reply, 200, {
+    return sendResponse(reply, 200, {
       success: true,
       message: "Position deleted successfully",
     });
   } catch (error) {
-    sendResponse(reply, 500, {
+    return sendResponse(reply, 500, {
       success: false,
       message: "Error deleting position",
       error,
