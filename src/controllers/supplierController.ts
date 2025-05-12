@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { FastifyReply, FastifyRequest } from "fastify";
 import { PrismaClient } from "@prisma/client";
 import { sendResponse } from "../helpers";
@@ -9,14 +10,27 @@ export const createSupplier = async (
   request: FastifyRequest,
   reply: FastifyReply
 ) => {
-  const { name, phoneNumber, phoneNumberAlt, email, homeAddress } =
-    request.body as {
-      name: string;
-      phoneNumber: string;
-      phoneNumberAlt: string;
-      email: string;
-      homeAddress: string;
-    };
+  const {
+    name,
+    phoneNumber,
+    phoneNumberAlt,
+    email,
+    homeAddress,
+    bank,
+    bankNumber,
+    category,
+    bankOwner,
+  } = request.body as {
+    name: string;
+    phoneNumber: string;
+    phoneNumberAlt: string;
+    email: string;
+    homeAddress: string;
+    bank: string;
+    bankNumber: string;
+    category: string;
+    bankOwner: string;
+  };
 
   try {
     const supplier = await prisma.supplier.create({
@@ -26,6 +40,10 @@ export const createSupplier = async (
         phoneNumberAlt,
         email,
         homeAddress,
+        bank,
+        bankNumber,
+        category,
+        bankOwner,
       },
     });
 
@@ -50,7 +68,7 @@ export const getAllSuppliers = async (
 ) => {
   try {
     /** Get query parameters */
-    const { page, limit, sortBy, sortOrder } = request.query as {
+    const { page, limit, sortBy, sortOrder, status } = request.query as {
       page?: string;
       limit?: string;
       sortBy?: string;
@@ -73,22 +91,22 @@ export const getAllSuppliers = async (
     };
 
     /** Filter parameters */
-    // const whereConditions: any = {
-    //   where: {
-    //     status: {
-    //       contains: "active",
-    //       mode: "insensitive",
-    //       not: "non-active",
-    //     },
-    //   },
-    // };
+    const whereConditions: any = {
+      where: {
+        status: {
+          contains: "active",
+          mode: "insensitive",
+          not: "non-active",
+        },
+      },
+    };
 
-    // if (status) {
-    //   whereConditions.where.status = {
-    //     equals: status,
-    //     mode: "insensitive",
-    //   };
-    // }
+    if (status) {
+      whereConditions.where.status = {
+        equals: status,
+        mode: "insensitive",
+      };
+    }
 
     /* Commented if someday it will be changed 
       const suppliers = await prisma.supplier.findMany({
@@ -102,10 +120,11 @@ export const getAllSuppliers = async (
 
     const suppliers = await prisma.supplier.findMany({
       ...options,
+      ...whereConditions,
     });
 
     /** Count groups */
-    const supplierCount = await prisma.supplier.count();
+    const supplierCount = await prisma.supplier.count({ ...whereConditions });
 
     return sendResponse(reply, 200, {
       success: true,

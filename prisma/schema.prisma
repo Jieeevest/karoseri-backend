@@ -99,6 +99,7 @@ model Supplier {
   request         Request[]           @relation("SupplierToRequest")
   inbound         Inbound[]           @relation("SupplierToInbound")
   outbound        Outbound[]          @relation("SupplierToOutbound")
+  status          String?
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
 }
