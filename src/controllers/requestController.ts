@@ -46,22 +46,52 @@ export const getAllRequests = async (
   reply: FastifyReply
 ) => {
   try {
+    /** Get query parameters */
+    const { page, limit, sortBy, sortOrder } = request.query as {
+      page?: string;
+      limit?: string;
+      sortBy?: string;
+      sortOrder?: string;
+      keyword?: string;
+    };
+
+    /** Set pagination parameters */
+    const pageNumber = parseInt(page || "1", 10);
+    const pageSize = parseInt(limit || "10", 10);
+    const orderField = sortBy || "createdAt";
+    const orderDirection = sortOrder?.toLowerCase() === "desc" ? "desc" : "asc";
+
+    /** Set options */
+    const options = {
+      skip: (pageNumber - 1) * pageSize,
+      take: pageSize,
+      orderBy: { [orderField]: orderDirection },
+    };
+
     const requests = await prisma.request.findMany({
-      include: {
-        requestItem: true,
-        supplier: true,
-      },
+      ...options,
     });
 
-    sendResponse(reply, 200, {
+    /** Count requests */
+    const requestCount = await prisma.request.count();
+
+    return sendResponse(reply, 200, {
       success: true,
       message: "Requests retrieved successfully",
-      data: requests,
+      data: {
+        requests,
+        totalData: requestCount,
+        pageNumber,
+        pageSize,
+        orderBy: orderField,
+        orderDirection,
+      },
     });
   } catch (error) {
-    sendResponse(reply, 500, {
+    console.log(error);
+    return sendResponse(reply, 500, {
       success: false,
-      message: "Error retrieving requests",
+      message: "Error retrieving vehicles",
       error,
     });
   }
