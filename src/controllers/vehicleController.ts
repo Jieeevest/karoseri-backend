@@ -63,21 +63,55 @@ export const createVehicle = async (
   }
 };
 
-// Get All Vehicles
 export const getAllVehicles = async (
   request: FastifyRequest,
   reply: FastifyReply
 ) => {
   try {
-    const vehicles = await prisma.vehicle.findMany();
+    /** Get query parameters */
+    const { page, limit, sortBy, sortOrder } = request.query as {
+      page?: string;
+      limit?: string;
+      sortBy?: string;
+      sortOrder?: string;
+      keyword?: string;
+    };
 
-    sendResponse(reply, 200, {
+    /** Set pagination parameters */
+    const pageNumber = parseInt(page || "1", 10);
+    const pageSize = parseInt(limit || "10", 10);
+    const orderField = sortBy || "createdAt";
+    const orderDirection = sortOrder?.toLowerCase() === "desc" ? "desc" : "asc";
+
+    /** Set options */
+    const options = {
+      skip: (pageNumber - 1) * pageSize,
+      take: pageSize,
+      orderBy: { [orderField]: orderDirection },
+    };
+
+    const vehicles = await prisma.vehicle.findMany({
+      ...options,
+    });
+
+    /** Count vehicles */
+    const vehicleCount = await prisma.vehicle.count();
+
+    return sendResponse(reply, 200, {
       success: true,
       message: "Vehicles retrieved successfully",
-      data: vehicles,
+      data: {
+        vehicles,
+        totalData: vehicleCount,
+        pageNumber,
+        pageSize,
+        orderBy: orderField,
+        orderDirection,
+      },
     });
   } catch (error) {
-    sendResponse(reply, 500, {
+    console.log(error);
+    return sendResponse(reply, 500, {
       success: false,
       message: "Error retrieving vehicles",
       error,
