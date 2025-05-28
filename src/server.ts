@@ -57,9 +57,9 @@ server.register(typeRoutes, { prefix: prefix + "/types" });
 server.register(supplierRoutes, { prefix: prefix + "/suppliers" });
 server.register(vehicleRoutes, { prefix: prefix + "/vehicles" });
 server.register(karoseriCategoriesRoutes, {
-  prefix: prefix + "/karoseri-categories",
+  prefix: prefix + "/categories",
 });
-server.register(bomItemsRoutes, { prefix: prefix + "/bom-items" });
+server.register(bomItemsRoutes, { prefix: prefix + "/billofmaterials" });
 server.register(projectRoutes, { prefix: prefix + "/projects" });
 
 const start = async () => {
