@@ -233,10 +233,8 @@ model BOMItem {
   karoseriCategoryId Int
   inventoryId        Int
   quantityPerUnit    Float             // Misal: 5.5 lembar/unit
-
   karoseriCategory   KaroseriCategory  @relation("KaroseriCategoryToBOMItem", fields: [karoseriCategoryId], references: [id])
   inventory          Inventory         @relation("InventoryToBOMItem", fields: [inventoryId], references: [id])
-
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
 }
@@ -250,10 +248,8 @@ model Project {
   status             String            // e.g. "In Progress", "Completed"
   startDate          DateTime?
   endDate            DateTime?
-  
   karoseriCategory   KaroseriCategory  @relation(fields: [karoseriCategoryId], references: [id])
   bomItems           ProjectBOMItem[]  @relation("ProjectToProjectBOMItem")
-
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
 }
