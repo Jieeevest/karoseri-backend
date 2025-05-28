@@ -80,6 +80,8 @@ model Inventory {
   requestItem     RequestItems[]      @relation("RequestItemsToInventory")
   inboundItem     InboundItems[]      @relation("InboundItemsToInventory")
   outboundItem    OutboundItems[]     @relation("OutboundItemsToInventory")
+  BOMItem         BOMItem[]           @relation("InventoryToBOMItem")
+  ProjectBomItem  ProjectBOMItem[]    @relation("InventoryToProjectBOMItem")
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
 }
@@ -215,6 +217,56 @@ model OutboundItems {
   type            Type                @relation("TypeToOutboundItems", fields: [typeId], references: [id])
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
+}
+
+model KaroseriCategory {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  bomItems  BOMItem[]  @relation("KaroseriCategoryToBOMItem")
+  projects  Project[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model BOMItem {
+  id                 Int               @id @default(autoincrement())
+  karoseriCategoryId Int
+  inventoryId        Int
+  quantityPerUnit    Float             // Misal: 5.5 lembar/unit
+
+  karoseriCategory   KaroseriCategory  @relation("KaroseriCategoryToBOMItem", fields: [karoseriCategoryId], references: [id])
+  inventory          Inventory         @relation("InventoryToBOMItem", fields: [inventoryId], references: [id])
+
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+}
+
+model Project {
+  id                 Int               @id @default(autoincrement())
+  name               String
+  customerName       String
+  karoseriCategoryId Int
+  unitCount          Int               // Jumlah unit pada proyek ini
+  status             String            // e.g. "In Progress", "Completed"
+  startDate          DateTime?
+  endDate            DateTime?
+  
+  karoseriCategory   KaroseriCategory  @relation(fields: [karoseriCategoryId], references: [id])
+  bomItems           ProjectBOMItem[]  @relation("ProjectToProjectBOMItem")
+
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+}
+
+model ProjectBOMItem {
+  id          Int       @id @default(autoincrement())
+  projectId   Int
+  inventoryId Int
+  quantity    Float      // Total quantity yang dibutuhkan untuk proyek ini (quantityPerUnit * unitCount)
+  project     Project    @relation("ProjectToProjectBOMItem", fields: [projectId], references: [id])
+  inventory   Inventory  @relation("InventoryToProjectBOMItem", fields: [inventoryId], references: [id])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 }
 
 model ActivityLog {
