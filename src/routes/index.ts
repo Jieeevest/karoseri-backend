@@ -15,6 +15,9 @@ import savingLocationRoutes from "./savingLocationRoutes";
 import supplierRoutes from "./supplierRoutes";
 import typeRoutes from "./typeRoutes";
 import vehicleRoutes from "./vehicleRoutes";
+import karoseriCategoriesRoutes from "./karoseriCategoryRoutes";
+import bomItemsRoutes from "./bomItemsRoutes";
+import projectRoutes from "./projectRoutes";
 
 export {
   authenticationRoutes,
@@ -34,4 +37,7 @@ export {
   typeRoutes,
   supplierRoutes,
   vehicleRoutes,
+  karoseriCategoriesRoutes,
+  bomItemsRoutes,
+  projectRoutes,
 };

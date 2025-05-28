@@ -18,6 +18,9 @@ import {
   typeRoutes,
   supplierRoutes,
   vehicleRoutes,
+  karoseriCategoriesRoutes,
+  bomItemsRoutes,
+  projectRoutes,
 } from "./routes";
 
 const server = Fastify({
@@ -53,6 +56,11 @@ server.register(savingLocationRoutes, { prefix: prefix + "/locations" });
 server.register(typeRoutes, { prefix: prefix + "/types" });
 server.register(supplierRoutes, { prefix: prefix + "/suppliers" });
 server.register(vehicleRoutes, { prefix: prefix + "/vehicles" });
+server.register(karoseriCategoriesRoutes, {
+  prefix: prefix + "/karoseri-categories",
+});
+server.register(bomItemsRoutes, { prefix: prefix + "/bom-items" });
+server.register(projectRoutes, { prefix: prefix + "/projects" });
 
 const start = async () => {
   try {
