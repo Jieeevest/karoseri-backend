@@ -16,7 +16,7 @@ import supplierRoutes from "./supplierRoutes";
 import typeRoutes from "./typeRoutes";
 import vehicleRoutes from "./vehicleRoutes";
 import karoseriCategoriesRoutes from "./karoseriCategoryRoutes";
-import bomItemsRoutes from "./bomItemsRoutes";
+import billofmaterialsRoutes from "./billofmaterialsRoutes";
 import projectRoutes from "./projectRoutes";
 
 export {
@@ -38,6 +38,6 @@ export {
   supplierRoutes,
   vehicleRoutes,
   karoseriCategoriesRoutes,
-  bomItemsRoutes,
+  billofmaterialsRoutes,
   projectRoutes,
 };

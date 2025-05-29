@@ -19,7 +19,7 @@ import {
   supplierRoutes,
   vehicleRoutes,
   karoseriCategoriesRoutes,
-  bomItemsRoutes,
+  billofmaterialsRoutes,
   projectRoutes,
 } from "./routes";
 
@@ -59,7 +59,7 @@ server.register(vehicleRoutes, { prefix: prefix + "/vehicles" });
 server.register(karoseriCategoriesRoutes, {
   prefix: prefix + "/karoseri-categories",
 });
-server.register(bomItemsRoutes, { prefix: prefix + "/billofmaterials" });
+server.register(billofmaterialsRoutes, { prefix: prefix + "/billofmaterials" });
 server.register(projectRoutes, { prefix: prefix + "/projects" });
 
 const start = async () => {

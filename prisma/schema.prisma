@@ -228,21 +228,33 @@ model OutboundItems {
 model KaroseriCategory {
   id        Int        @id @default(autoincrement())
   name      String     @unique
-  bomItems  BOMItem[]  @relation("KaroseriCategoryToBOMItem")
+  description String
   projects  Project[]
+  boms      BOM[]      @relation("KaroseriCategoryToBOM")
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 }
 
-model BOMItem {
-  id                 Int               @id @default(autoincrement())
+model BOM {
+  id                 Int              @id @default(autoincrement())
   karoseriCategoryId Int
-  inventoryId        Int
-  quantityPerUnit    Float             // Misal: 5.5 lembar/unit
-  karoseriCategory   KaroseriCategory  @relation("KaroseriCategoryToBOMItem", fields: [karoseriCategoryId], references: [id])
-  inventory          Inventory         @relation("InventoryToBOMItem", fields: [inventoryId], references: [id])
-  createdAt          DateTime          @default(now())
-  updatedAt          DateTime          @updatedAt
+  name               String
+  description        String?
+  karoseriCategory   KaroseriCategory @relation("KaroseriCategoryToBOM", fields: [karoseriCategoryId], references: [id])
+  bomItems           BOMItem[]
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+}
+
+model BOMItem {
+  id          Int       @id @default(autoincrement())
+  bomId       Int
+  inventoryId Int
+  quantityPerUnit Float
+  bom         BOM       @relation(fields: [bomId], references: [id])
+  inventory   Inventory @relation("InventoryToBOMItem", fields: [inventoryId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model Project {

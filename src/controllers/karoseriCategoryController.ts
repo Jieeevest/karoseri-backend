@@ -79,9 +79,12 @@ export const createKaroseriCategory = async (
   req: FastifyRequest,
   reply: FastifyReply
 ) => {
-  const { name } = req.body as { name: string };
+  const { name, description } = req.body as {
+    name: string;
+    description: string;
+  };
   const karoseriCategory = await prisma.karoseriCategory.create({
-    data: { name },
+    data: { name, description },
   });
   sendResponse(reply, 200, {
     success: true,
@@ -95,10 +98,13 @@ export const updateKaroseriCategory = async (
   reply: FastifyReply
 ) => {
   const { id } = req.params as { id: string };
-  const { name } = req.body as { name: string };
+  const { name, description } = req.body as {
+    name: string;
+    description: string;
+  };
   const karoseriCategory = await prisma.karoseriCategory.update({
     where: { id: Number(id) },
-    data: { name },
+    data: { name, description },
   });
   sendResponse(reply, 200, {
     success: true,
@@ -117,7 +123,7 @@ export const deleteKaroseriCategory = async (
   });
   sendResponse(reply, 200, {
     success: true,
-    message: "Success",
+    message: "Success ",
     data: karoseriCategory,
   });
 };
