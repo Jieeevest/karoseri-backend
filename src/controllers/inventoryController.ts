@@ -64,6 +64,7 @@ export const createInventory = async (
         supplierId,
         locationId,
         minimumStock,
+        currentStock: 0,
         description,
       },
     });
@@ -207,6 +208,7 @@ export const updateInventory = async (
         unit,
         locationId,
         minimumStock,
+        currentStock: 0,
         description,
       },
     });

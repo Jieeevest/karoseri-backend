@@ -76,6 +76,7 @@ model Inventory {
   locationId      Int 
   location        SavingLocation      @relation("LocationToInventory", fields: [locationId], references: [id])
   minimumStock    Int                 @default(0)
+  currentStock    Int                 @default(0)
   price           Int
   unit            String?
   description     String?
