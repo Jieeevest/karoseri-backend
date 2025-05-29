@@ -34,8 +34,10 @@ export const createInventory = async (
     name,
     amount,
     typeId,
-    categoryId,
     locationId,
+    supplierId,
+    price,
+    unit,
     minimumStock,
     description,
   } = request.body as {
@@ -44,6 +46,9 @@ export const createInventory = async (
     typeId: number;
     categoryId: number;
     locationId: number;
+    supplierId: number;
+    price: number;
+    unit: string;
     minimumStock: number;
     description?: string;
   };
@@ -54,7 +59,9 @@ export const createInventory = async (
         name,
         amount,
         typeId,
-        categoryId,
+        price,
+        unit,
+        supplierId,
         locationId,
         minimumStock,
         description,
@@ -87,7 +94,7 @@ export const getAllInventory = async (
     const inventoryItems = await prisma.inventory.findMany({
       include: {
         type: true,
-        category: true,
+        supplier: true,
         location: true,
       },
     });
@@ -125,7 +132,7 @@ export const getInventoryById = async (
       where: { id: Number(id) },
       include: {
         type: true,
-        category: true,
+        supplier: true,
         location: true,
       },
     });
@@ -170,16 +177,20 @@ export const updateInventory = async (
     name,
     amount,
     typeId,
-    categoryId,
     locationId,
+    supplierId,
+    price,
+    unit,
     minimumStock,
     description,
   } = request.body as {
     name?: string;
     amount?: number;
     typeId?: number;
-    categoryId?: number;
     locationId?: number;
+    supplierId?: number;
+    price?: number;
+    unit?: string;
     minimumStock?: number;
     description?: string;
   };
@@ -191,7 +202,9 @@ export const updateInventory = async (
         name,
         amount,
         typeId,
-        categoryId,
+        supplierId,
+        price,
+        unit,
         locationId,
         minimumStock,
         description,

@@ -71,12 +71,16 @@ model Inventory {
   amount          Int                 @default(0)
   typeId          Int
   type            Type                @relation("TypeToInventory", fields: [typeId], references: [id])
-  categoryId      Int
-  category        Category            @relation("CategoryToInventory", fields: [categoryId], references: [id])
+  // categoryId      Int
+  // category        Category            @relation("CategoryToInventory", fields: [categoryId], references: [id])
   locationId      Int 
   location        SavingLocation      @relation("LocationToInventory", fields: [locationId], references: [id])
   minimumStock    Int                 @default(0)
+  price           Int
+  unit            String?
   description     String?
+  supplierId      Int
+  supplier        Supplier            @relation("SupplierToInventory", fields: [supplierId], references: [id])
   requestItem     RequestItems[]      @relation("RequestItemsToInventory")
   inboundItem     InboundItems[]      @relation("InboundItemsToInventory")
   outboundItem    OutboundItems[]     @relation("OutboundItemsToInventory")
@@ -98,6 +102,7 @@ model Supplier {
   email           String?
   homeAddress     String?
   totalDebt       Int?                @default(0)
+  inventory       Inventory[]         @relation("SupplierToInventory")
   request         Request[]           @relation("SupplierToRequest")
   inbound         Inbound[]           @relation("SupplierToInbound")
   outbound        Outbound[]          @relation("SupplierToOutbound")
@@ -121,7 +126,7 @@ model Category {
   id              Int                 @id @default(autoincrement())
   name            String?
   description     String?
-  inventory       Inventory[]         @relation("CategoryToInventory")
+  // inventory       Inventory[]         @relation("CategoryToInventory")
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
 }

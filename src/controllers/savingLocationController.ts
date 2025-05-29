@@ -33,23 +33,57 @@ export const createSavingLocation = async (
   }
 };
 
-// Get All Saving Locations
 export const getAllSavingLocations = async (
   request: FastifyRequest,
   reply: FastifyReply
 ) => {
   try {
-    const savingLocations = await prisma.savingLocation.findMany();
+    /** Get query parameters */
+    const { page, limit, sortBy, sortOrder } = request.query as {
+      page?: string;
+      limit?: string;
+      sortBy?: string;
+      sortOrder?: string;
+      keyword?: string;
+    };
 
-    sendResponse(reply, 200, {
+    /** Set pagination parameters */
+    const pageNumber = parseInt(page || "1", 10);
+    const pageSize = parseInt(limit || "10", 10);
+    const orderField = sortBy || "createdAt";
+    const orderDirection = sortOrder?.toLowerCase() === "desc" ? "desc" : "asc";
+
+    /** Set options */
+    const options = {
+      skip: (pageNumber - 1) * pageSize,
+      take: pageSize,
+      orderBy: { [orderField]: orderDirection },
+    };
+
+    const locations = await prisma.savingLocation.findMany({
+      ...options,
+    });
+
+    /** Count vehicles */
+    const locationCount = await prisma.savingLocation.count();
+
+    return sendResponse(reply, 200, {
       success: true,
-      message: "Saving Locations retrieved successfully",
-      data: savingLocations,
+      message: "Locations retrieved successfully",
+      data: {
+        locations,
+        totalData: locationCount,
+        pageNumber,
+        pageSize,
+        orderBy: orderField,
+        orderDirection,
+      },
     });
   } catch (error) {
-    sendResponse(reply, 500, {
+    console.log(error);
+    return sendResponse(reply, 500, {
       success: false,
-      message: "Error retrieving saving locations",
+      message: "Error retrieving locations",
       error,
     });
   }

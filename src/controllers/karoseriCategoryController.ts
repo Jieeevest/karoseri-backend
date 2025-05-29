@@ -5,15 +5,59 @@ import { sendResponse } from "../helpers";
 const prisma = new PrismaClient();
 
 export const getAllKaroseriCategories = async (
-  req: FastifyRequest,
+  request: FastifyRequest,
   reply: FastifyReply
 ) => {
-  const karoseriCategories = await prisma.karoseriCategory.findMany();
-  sendResponse(reply, 200, {
-    success: true,
-    message: "Success",
-    data: karoseriCategories,
-  });
+  try {
+    /** Get query parameters */
+    const { page, limit, sortBy, sortOrder } = request.query as {
+      page?: string;
+      limit?: string;
+      sortBy?: string;
+      sortOrder?: string;
+      keyword?: string;
+    };
+
+    /** Set pagination parameters */
+    const pageNumber = parseInt(page || "1", 10);
+    const pageSize = parseInt(limit || "10", 10);
+    const orderField = sortBy || "createdAt";
+    const orderDirection = sortOrder?.toLowerCase() === "desc" ? "desc" : "asc";
+
+    /** Set options */
+    const options = {
+      skip: (pageNumber - 1) * pageSize,
+      take: pageSize,
+      orderBy: { [orderField]: orderDirection },
+    };
+
+    const categories = await prisma.karoseriCategory.findMany({
+      ...options,
+    });
+
+    /** Count vehicles */
+    const locationCount = await prisma.karoseriCategory.count();
+
+    return sendResponse(reply, 200, {
+      success: true,
+      message: "Categories retrieved successfully",
+      data: {
+        categories,
+        totalData: locationCount,
+        pageNumber,
+        pageSize,
+        orderBy: orderField,
+        orderDirection,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    return sendResponse(reply, 500, {
+      success: false,
+      message: "Error retrieving categories",
+      error,
+    });
+  }
 };
 
 export const getKaroseriCategoryById = async (
