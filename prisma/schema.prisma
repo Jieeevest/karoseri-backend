@@ -69,8 +69,8 @@ model Inventory {
   id              Int                 @id @default(autoincrement())
   name            String?
   amount          Int                 @default(0)
-  typeId          Int
-  type            Type                @relation("TypeToInventory", fields: [typeId], references: [id])
+  // typeId          Int
+  // type            Type                @relation("TypeToInventory", fields: [typeId], references: [id])
   // categoryId      Int
   // category        Category            @relation("CategoryToInventory", fields: [categoryId], references: [id])
   locationId      Int 
@@ -78,6 +78,7 @@ model Inventory {
   minimumStock    Int                 @default(0)
   currentStock    Int                 @default(0)
   price           Int
+  jenis           String?
   unit            String?
   description     String?
   supplierId      Int
@@ -116,7 +117,7 @@ model Type {
   id              Int                 @id @default(autoincrement())
   name            String?
   description     String?
-  inventory       Inventory[]         @relation("TypeToInventory")
+  // inventory       Inventory[]         @relation("TypeToInventory")
   requestItems    RequestItems[]      @relation("TypeToRequestItems")
   inboundItems    InboundItems[]      @relation("TypeToInboundItems")
   outboundItems   OutboundItems[]     @relation("TypeToOutboundItems")
