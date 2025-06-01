@@ -1,20 +1,19 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { FastifyReply, FastifyRequest } from "fastify";
 import { PrismaClient } from "@prisma/client";
 import { sendResponse } from "../helpers";
-import Fuse from "fuse.js"; // Import fuse.js for fuzzy searching
+// import Fuse from "fuse.js"; // Import fuse.js for fuzzy searching
 
 const prisma = new PrismaClient();
 
 // Helper function for fuzzy matching inventory name
-const fuzzySearch = (inventory: any[], searchTerm: string) => {
-  const options = {
-    keys: ["name"],
-    threshold: 0.3, // Lower is more strict, higher allows more fuzziness (0-1)
-  };
-  const fuse = new Fuse(inventory, options);
-  return fuse.search(searchTerm).map((result) => result.item);
-};
+// const fuzzySearch = (inventory: any[], searchTerm: string) => {
+//   const options = {
+//     keys: ["name"],
+//     threshold: 0.3, // Lower is more strict, higher allows more fuzziness (0-1)
+//   };
+//   const fuse = new Fuse(inventory, options);
+//   return fuse.search(searchTerm).map((result) => result.item);
+// };
 
 // Fuzzy comparison for amount and minimumStock
 const isStockNearThreshold = (
@@ -43,7 +42,7 @@ export const createInventory = async (
   } = request.body as {
     name: string;
     amount: number;
-    typeId: number;
+    typeId: string;
     categoryId: number;
     locationId: number;
     supplierId: number;
@@ -58,7 +57,7 @@ export const createInventory = async (
       data: {
         name,
         amount,
-        typeId,
+        jenis: typeId,
         price,
         unit,
         supplierId,
@@ -75,6 +74,7 @@ export const createInventory = async (
       data: inventory,
     });
   } catch (error) {
+    console.error(error);
     sendResponse(reply, 500, {
       success: false,
       message: "Error creating inventory item",
@@ -84,38 +84,98 @@ export const createInventory = async (
 };
 
 // Get All Inventory Items (with fuzzy search)
+// export const getAllInventory = async (
+//   request: FastifyRequest,
+//   reply: FastifyReply
+// ) => {
+//   const { search } = request.query as { search?: string }; // Search term from query params
+
+//   try {
+//     // Fetch all inventory items
+//     const inventoryItems = await prisma.inventory.findMany({
+//       include: {
+//         // type: true,
+//         supplier: true,
+//         location: true,
+//       },
+//     });
+
+//     let filteredInventory = inventoryItems;
+
+//     // Apply fuzzy search if a search term is provided
+//     if (search) {
+//       filteredInventory = fuzzySearch(inventoryItems, search);
+//     }
+
+//     sendResponse(reply, 200, {
+//       success: true,
+//       message: "Inventory items retrieved successfully",
+//       data: filteredInventory,
+//     });
+//   } catch (error) {
+//     sendResponse(reply, 500, {
+//       success: false,
+//       message: "Error retrieving inventory items",
+//       error,
+//     });
+//   }
+// };
+
 export const getAllInventory = async (
   request: FastifyRequest,
   reply: FastifyReply
 ) => {
-  const { search } = request.query as { search?: string }; // Search term from query params
-
   try {
-    // Fetch all inventory items
-    const inventoryItems = await prisma.inventory.findMany({
+    /** Get query parameters */
+    const { page, limit, sortBy, sortOrder } = request.query as {
+      page?: string;
+      limit?: string;
+      sortBy?: string;
+      sortOrder?: string;
+      keyword?: string;
+    };
+
+    /** Set pagination parameters */
+    const pageNumber = parseInt(page || "1", 10);
+    const pageSize = parseInt(limit || "10", 10);
+    const orderField = sortBy || "createdAt";
+    const orderDirection = sortOrder?.toLowerCase() === "desc" ? "desc" : "asc";
+
+    /** Set options */
+    const options = {
+      skip: (pageNumber - 1) * pageSize,
+      take: pageSize,
+      orderBy: { [orderField]: orderDirection },
+    };
+
+    const inventory = await prisma.inventory.findMany({
+      ...options,
       include: {
-        type: true,
-        supplier: true,
         location: true,
+        supplier: true,
       },
     });
 
-    let filteredInventory = inventoryItems;
+    /** Count vehicles */
+    const inventoryCount = await prisma.inventory.count();
 
-    // Apply fuzzy search if a search term is provided
-    if (search) {
-      filteredInventory = fuzzySearch(inventoryItems, search);
-    }
-
-    sendResponse(reply, 200, {
+    return sendResponse(reply, 200, {
       success: true,
-      message: "Inventory items retrieved successfully",
-      data: filteredInventory,
+      message: "Inventory retrieved successfully",
+      data: {
+        inventory,
+        totalData: inventoryCount,
+        pageNumber,
+        pageSize,
+        orderBy: orderField,
+        orderDirection,
+      },
     });
   } catch (error) {
-    sendResponse(reply, 500, {
+    console.log(error);
+    return sendResponse(reply, 500, {
       success: false,
-      message: "Error retrieving inventory items",
+      message: "Error retrieving inventory",
       error,
     });
   }
@@ -132,7 +192,7 @@ export const getInventoryById = async (
     const inventoryItem = await prisma.inventory.findUnique({
       where: { id: Number(id) },
       include: {
-        type: true,
+        // type: true,
         supplier: true,
         location: true,
       },
@@ -187,7 +247,7 @@ export const updateInventory = async (
   } = request.body as {
     name?: string;
     amount?: number;
-    typeId?: number;
+    typeId?: string;
     locationId?: number;
     supplierId?: number;
     price?: number;
@@ -202,7 +262,7 @@ export const updateInventory = async (
       data: {
         name,
         amount,
-        typeId,
+        jenis: typeId,
         supplierId,
         price,
         unit,

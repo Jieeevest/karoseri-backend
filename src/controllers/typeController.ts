@@ -44,7 +44,7 @@ export const getAllTypes = async (
   try {
     const types = await prisma.type.findMany({
       include: {
-        inventory: true,
+        // inventory: true,
         requestItems: true,
         inboundItems: true,
         outboundItems: true,
@@ -76,7 +76,7 @@ export const getTypeById = async (
     const type = await prisma.type.findUnique({
       where: { id: Number(id) },
       include: {
-        inventory: true,
+        // inventory: true,
         requestItems: true,
         inboundItems: true,
         outboundItems: true,
