@@ -66,30 +66,33 @@ model Employee {
 }
 
 model Inventory {
-  id              Int                 @id @default(autoincrement())
-  name            String?
-  amount          Int                 @default(0)
-  // typeId          Int
-  // type            Type                @relation("TypeToInventory", fields: [typeId], references: [id])
-  // categoryId      Int
-  // category        Category            @relation("CategoryToInventory", fields: [categoryId], references: [id])
-  locationId      Int 
-  location        SavingLocation      @relation("LocationToInventory", fields: [locationId], references: [id])
-  minimumStock    Int                 @default(0)
-  currentStock    Int                 @default(0)
-  price           Int
-  jenis           String?
-  unit            String?
-  description     String?
-  supplierId      Int
-  supplier        Supplier            @relation("SupplierToInventory", fields: [supplierId], references: [id])
-  requestItem     RequestItems[]      @relation("RequestItemsToInventory")
-  inboundItem     InboundItems[]      @relation("InboundItemsToInventory")
-  outboundItem    OutboundItems[]     @relation("OutboundItemsToInventory")
-  BOMItem         BOMItem[]           @relation("InventoryToBOMItem")
-  ProjectBomItem  ProjectBOMItem[]    @relation("InventoryToProjectBOMItem")
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
+  id                Int                 @id @default(autoincrement())
+  name              String?
+  amount            Int                 @default(0)
+  itemCategoryId    Int?
+  itemCategory      ItemCategory?       @relation("ItemCategoryToInventory", fields: [itemCategoryId], references: [id])
+  itemUnitId        Int?
+  itemUnit          ItemUnit?           @relation("ItemUnitToInventory", fields: [itemUnitId], references: [id])
+  locationId        Int 
+  location          SavingLocation      @relation("LocationToInventory", fields: [locationId], references: [id])
+  minimumStock      Int                 @default(0)
+  currentStock      Int                 @default(0)
+  price             Int
+  jenis             String?
+  unit              String?
+  description       String?
+  supplierId        Int
+  supplier          Supplier            @relation("SupplierToInventory", fields: [supplierId], references: [id])
+  requestItem       RequestItems[]      @relation("RequestItemsToInventory")
+  inboundItem       InboundItems[]      @relation("InboundItemsToInventory")
+  outboundItem      OutboundItems[]     @relation("OutboundItemsToInventory")
+  BOMItem           BOMItem[]           @relation("InventoryToBOMItem")
+  ProjectBomItem    ProjectBOMItem[]    @relation("InventoryToProjectBOMItem")
+  itemPrices        ItemPrice[]         @relation("InventoryToItemPrice")
+  purchaseOrderItems PurchaseOrderItem[] @relation("InventoryToPurchaseOrderItem")
+  orderSpecItems    OrderSpecItem[]     @relation("InventoryToOrderSpecItem")
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
 }
 
 model Supplier {
@@ -108,6 +111,9 @@ model Supplier {
   request         Request[]           @relation("SupplierToRequest")
   inbound         Inbound[]           @relation("SupplierToInbound")
   outbound        Outbound[]          @relation("SupplierToOutbound")
+  itemPrices      ItemPrice[]         @relation("SupplierToItemPrice")
+  purchaseOrders  PurchaseOrder[]     @relation("SupplierToPurchaseOrder")
+  supplierBills   SupplierBill[]      @relation("SupplierToSupplierBill")
   status          String?
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
@@ -141,10 +147,14 @@ model SavingLocation {
   updatedAt       DateTime            @updatedAt
 }
 model Vehicle {
-  id              Int                 @id @default(autoincrement())
+  id              Int           @id @default(autoincrement())
   showroomName    String?
   ownerName       String?
   expeditionName  String?
+  vehicleBrandId  Int?
+  vehicleBrand    VehicleBrand? @relation("VehicleBrandToVehicle", fields: [vehicleBrandId], references: [id])
+  vehicleTypeId   Int?
+  vehicleType     VehicleType?  @relation("VehicleTypeToVehicle", fields: [vehicleTypeId], references: [id])
   merk            String?
   series          String?
   color           String?
@@ -152,8 +162,8 @@ model Vehicle {
   chasisNumber    String?
   machineNumber   String?
   description     String?
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 }
 model Request {
   id              Int                 @id @default(autoincrement())
@@ -301,4 +311,212 @@ model ErrorLog {
   timestamp       DateTime @default(now())
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+// Menu Master Models
+model ItemCategory {
+  id          Int         @id @default(autoincrement())
+  name        String      @unique
+  description String?
+  status      String?     @default("active")
+  inventories Inventory[] @relation("ItemCategoryToInventory")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model ItemUnit {
+  id          Int         @id @default(autoincrement())
+  name        String      @unique
+  symbol      String      // e.g., "pcs", "kg", "L"
+  description String?
+  status      String?     @default("active")
+  inventories Inventory[] @relation("ItemUnitToInventory")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model VehicleBrand {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?
+  status      String?   @default("active")
+  vehicles    Vehicle[] @relation("VehicleBrandToVehicle")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model VehicleType {
+  id              Int               @id @default(autoincrement())
+  name            String            @unique
+  description     String?
+  status          String?           @default("active")
+  vehicles        Vehicle[]         @relation("VehicleTypeToVehicle")
+  vehicleInbounds VehicleInbound[]  @relation("VehicleTypeToVehicleInbound")
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+}
+
+// Manajemen Barang - Item Price
+model ItemPrice {
+  id          Int       @id @default(autoincrement())
+  inventoryId Int
+  inventory   Inventory @relation("InventoryToItemPrice", fields: [inventoryId], references: [id])
+  supplierId  Int?
+  supplier    Supplier? @relation("SupplierToItemPrice", fields: [supplierId], references: [id])
+  price       Float
+  validFrom   DateTime  @default(now())
+  validUntil  DateTime?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+// Purchase Order
+model PurchaseOrder {
+  id                  Int                          @id @default(autoincrement())
+  poNumber            String                       @unique
+  supplierId          Int
+  supplier            Supplier                     @relation("SupplierToPurchaseOrder", fields: [supplierId], references: [id])
+  poDate              DateTime                     @default(now())
+  expectedDate        DateTime?
+  totalAmount         Float                        @default(0)
+  status              String                       @default("draft") // draft, submitted, confirmed, cancelled
+  notes               String?
+  items               PurchaseOrderItem[]          @relation("PurchaseOrderToItems")
+  confirmations       PurchaseOrderConfirmation[]  @relation("PurchaseOrderToConfirmation")
+  createdById         Int
+  approvedById        Int?
+  createdAt           DateTime                     @default(now())
+  updatedAt           DateTime                     @updatedAt
+}
+
+model PurchaseOrderItem {
+  id              Int           @id @default(autoincrement())
+  purchaseOrderId Int
+  purchaseOrder   PurchaseOrder @relation("PurchaseOrderToItems", fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  inventoryId     Int
+  inventory       Inventory     @relation("InventoryToPurchaseOrderItem", fields: [inventoryId], references: [id])
+  quantity        Float
+  unitPrice       Float
+  subtotal        Float
+  notes           String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model PurchaseOrderConfirmation {
+  id              Int           @id @default(autoincrement())
+  purchaseOrderId Int
+  purchaseOrder   PurchaseOrder @relation("PurchaseOrderToConfirmation", fields: [purchaseOrderId], references: [id])
+  confirmedById   Int
+  confirmDate     DateTime      @default(now())
+  status          String        // approved, rejected, revision_needed
+  notes           String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+// Supplier Bill
+model SupplierBill {
+  id              Int                   @id @default(autoincrement())
+  billNumber      String                @unique
+  supplierId      Int
+  supplier        Supplier              @relation("SupplierToSupplierBill", fields: [supplierId], references: [id])
+  billDate        DateTime              @default(now())
+  dueDate         DateTime
+  totalAmount     Float
+  paidAmount      Float                 @default(0)
+  status          String                @default("unpaid") // unpaid, partial, paid
+  notes           String?
+  payments        SupplierBillPayment[] @relation("SupplierBillToPayments")
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+}
+
+model SupplierBillPayment {
+  id             Int          @id @default(autoincrement())
+  supplierBillId Int
+  supplierBill   SupplierBill @relation("SupplierBillToPayments", fields: [supplierBillId], references: [id])
+  paymentDate    DateTime     @default(now())
+  amount         Float
+  paymentMethod  String? // cash, transfer, check
+  notes          String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+// Customer
+model Customer {
+  id              Int              @id @default(autoincrement())
+  name            String
+  companyName     String?
+  phoneNumber     String?
+  email           String?
+  address         String?
+  city            String?
+  notes           String?
+  vehicleInbounds VehicleInbound[] @relation("CustomerToVehicleInbound")
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+// Vehicle Inbound & Outbound
+model VehicleInbound {
+  id               Int               @id @default(autoincrement())
+  inboundNumber    String            @unique
+  customerId       Int
+  customer         Customer          @relation("CustomerToVehicleInbound", fields: [customerId], references: [id])
+  vehicleTypeId    Int
+  vehicleType      VehicleType       @relation("VehicleTypeToVehicleInbound", fields: [vehicleTypeId], references: [id])
+  vehicleBrand     String?
+  plateNumber      String?
+  chasisNumber     String?
+  machineNumber    String?
+  color            String?
+  inboundDate      DateTime          @default(now())
+  initialCondition String?
+  notes            String?
+  status           String            @default("in_progress") // in_progress, completed
+  orderSpecs       OrderSpec[]       @relation("VehicleInboundToOrderSpec")
+  vehicleOutbound  VehicleOutbound?  @relation("VehicleInboundToOutbound")
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+}
+
+model VehicleOutbound {
+  id               Int            @id @default(autoincrement())
+  outboundNumber   String         @unique
+  vehicleInboundId Int            @unique
+  vehicleInbound   VehicleInbound @relation("VehicleInboundToOutbound", fields: [vehicleInboundId], references: [id])
+  outboundDate     DateTime       @default(now())
+  finalCondition   String?
+  notes            String?
+  receivedBy       String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
+
+// Order Spec
+model OrderSpec {
+  id               Int              @id @default(autoincrement())
+  vehicleInboundId Int
+  vehicleInbound   VehicleInbound   @relation("VehicleInboundToOrderSpec", fields: [vehicleInboundId], references: [id])
+  specName         String
+  description      String?
+  estimatedCost    Float?
+  items            OrderSpecItem[]  @relation("OrderSpecToItems")
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+}
+
+model OrderSpecItem {
+  id          Int       @id @default(autoincrement())
+  orderSpecId Int
+  orderSpec   OrderSpec @relation("OrderSpecToItems", fields: [orderSpecId], references: [id], onDelete: Cascade)
+  inventoryId Int
+  inventory   Inventory @relation("InventoryToOrderSpecItem", fields: [inventoryId], references: [id])
+  quantity    Float
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }

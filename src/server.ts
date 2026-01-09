@@ -21,6 +21,21 @@ import {
   karoseriCategoriesRoutes,
   billofmaterialsRoutes,
   projectRoutes,
+  // Menu Master
+  itemCategoryRoutes,
+  itemUnitRoutes,
+  vehicleBrandRoutes,
+  vehicleTypeRoutes,
+  // Manajemen Barang
+  itemPriceRoutes,
+  purchaseOrderRoutes,
+  purchaseOrderConfirmationRoutes,
+  supplierBillRoutes,
+  // Manajemen Kendaraan
+  customerRoutes,
+  vehicleInboundRoutes,
+  vehicleOutboundRoutes,
+  orderSpecRoutes,
 } from "./routes";
 
 const server = Fastify({
@@ -61,6 +76,28 @@ server.register(karoseriCategoriesRoutes, {
 });
 server.register(billofmaterialsRoutes, { prefix: prefix + "/billofmaterials" });
 server.register(projectRoutes, { prefix: prefix + "/projects" });
+
+// Menu Master Routes
+server.register(itemCategoryRoutes, { prefix: prefix + "/item-categories" });
+server.register(itemUnitRoutes, { prefix: prefix + "/item-units" });
+server.register(vehicleBrandRoutes, { prefix: prefix + "/vehicle-brands" });
+server.register(vehicleTypeRoutes, { prefix: prefix + "/vehicle-types" });
+
+// Manajemen Barang Routes
+server.register(itemPriceRoutes, { prefix: prefix + "/item-prices" });
+server.register(purchaseOrderRoutes, { prefix: prefix + "/purchase-orders" });
+server.register(purchaseOrderConfirmationRoutes, {
+  prefix: prefix + "/purchase-order-confirmations",
+});
+server.register(supplierBillRoutes, { prefix: prefix + "/supplier-bills" });
+
+// Manajemen Kendaraan Routes
+server.register(customerRoutes, { prefix: prefix + "/customers" });
+server.register(vehicleInboundRoutes, { prefix: prefix + "/vehicle-inbounds" });
+server.register(vehicleOutboundRoutes, {
+  prefix: prefix + "/vehicle-outbounds",
+});
+server.register(orderSpecRoutes, { prefix: prefix + "/order-specs" });
 
 const start = async () => {
   try {
